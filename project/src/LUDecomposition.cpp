@@ -62,12 +62,13 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 }
 
 double** LUBlockDecomposition(double** _A, int n) {
+	int b = 30;
 	double** res = new double*[b];
 	for (int p = 0; p < n; ++p) {
 		res[p] = new double[n];
 	}
 
-	int b = 2;
+	//int b = 2;
 	int _i = 0;
 	int lastsize = 0;
 	int lenght; // TODO: написать правильно, если написано неправильно, но а если правильно, то можно вообще не трогать, но тут на вкус и цвет, как говориться.
@@ -256,6 +257,25 @@ void linSolveUp(double** _A, double** _b, int n, int m) {
 		}
 		_A[i][i] = 1;
 	}
-	res = matrixMult(_A, _b);
+	//res = matrixMult(_A, _b, );
 	_b = res;
+}
+
+double** matrixMult(double** _source1, double** _source2, int m, int n, int s) {
+	double** result = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		result[i] = new double[s];
+		for (int j = 0; j < s; ++j) {
+			result[i][j] = 0.0;
+		}
+	}
+
+	for (int k = 0; k < n; k++) {
+		for (int i = 0; i < m; i++) {
+			for (int j = 0; j < s; j++) {
+				result[i][j] += _source1[i][k] * _source2[k][j];
+			}
+		}
+	}
+	return result;
 }

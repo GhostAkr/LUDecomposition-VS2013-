@@ -16,5 +16,6 @@ double** getU22(double** _source, int m, int n);
 double** getL(double** _source, int m, int n);
 double** getL22(double** _source, int m, int n);
 double** getL32(double** _source, int m, int n);
+double** matrixMult(double** _source1, double** _source2, int m, int n, int s);  // m, n --- size of _source1; s --- nOfCols in _source2
 
 #endif  // PROJECT_INCLUDE_LUDECOMPOSITION_H_
