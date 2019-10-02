@@ -63,61 +63,55 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 
 double** LUBlockDecomposition(double** _A, int n) {
 	int b = 30;
-	double** res = new double*[b];
-	for (int p = 0; p < b; ++p) {
+	double** res = new double*[n];
+	for (int p = 0; p < n; ++p) {
 		res[p] = new double[n];
 	}
-
 	int _i = 0;
 	int lastsize = 0;
 	int length;
-		double** block = new double* [b];
-		for (int p = 0; p < b; ++p) {
-			block[p] = new double[b];
-		}
-
-		for (int i = 0; i < n - 1 - b; i += b) {
-			length = n - b * (i + 1);
-			double** block1 = new double*[b];
-			for (int p = 0; p < b; ++p) {
-				block1[p] = new double[length];
-			}
-			double**block2 = new double*[b];
-			for (int p = 0; p < length; ++p) {
-				block2[p] = new double[b];
-			}
-
-
-			for (int k = 0; k < b; ++k) {
-				for (int l = 0; l < b; ++l) {
-					block[k][l] = _A[k + i][l + i];
-				}
-			}
-			LUDecompositionParal(block, b, b);  // TODO: make it void
-			linSolveDown(block, block1, b, length);// сначала считам U
-			linSolveUp(block, block2, b, length);  // потом L. матрица block портится 
-		
-			for (int k = 0; k < b; ++k) {
-				for (int l = 0; l < n - i * b; ++l) {
-					//cout << "block2[k][l] = " << block2[k][l] << endl;
-					res[l][k] = block2[k][l];  //сначала записываем L тк на диагонали 1 и их не жалко перекрыть значениями из U
-					res[k][l] = block1[k][l];
-				}
-			}
-			_i = i;
-			lastsize = n - _i * b;
-			double** last = new double*[lastsize]; // для общего случая. если последняя матрица такого же размера как первая, можно использовать block
-			for (int p = 0; p < lastsize; ++p) {
-				last[p] = new double[lastsize];
-			}
-			LUDecomposition(last, lastsize, lastsize);
-			for (int k = 0; k < lastsize; ++k) {
-				for (int l = 0; l < lastsize; ++l) {
-					res[k][l] = last[k][l];
-				}
-			}
+	double** block = new double* [b];
+	for (int p = 0; p < b; ++p) {
+		block[p] = new double[b];
 	}
-		
+	for (int i = 0; i < n - 1 - b; i += b) {
+		length = n - b * (i + 1);
+		double** block1 = new double*[b];
+		for (int p = 0; p < b; ++p) {
+			block1[p] = new double[length];
+		}
+		double**block2 = new double*[b];
+		for (int p = 0; p < b; ++p) {
+			block2[p] = new double[length];
+		}
+		for (int k = 0; k < b; ++k) {
+			for (int l = 0; l < b; ++l) {
+				block[k][l] = _A[k + i][l + i];
+			}
+		}
+		LUDecompositionParal(block, b, b);  // TODO: make it void
+		linSolveDown(block, block1, b, length);// сначала считам U
+		linSolveUp(block, block2, b, length);  // потом L. матрица block портится 
+		for (int k = 0; k < b; ++k) {
+			for (int l = 0; l < n - i * b; ++l) {
+				//cout << "block2[k][l] = " << block2[k][l] << endl;
+				res[l][k] = block2[k][l];  //сначала записываем L тк на диагонали 1 и их не жалко перекрыть значениями из U
+				res[k][l] = block1[k][l];
+			}
+		}
+		_i = i;
+		lastsize = n - _i * b;
+		double** last = new double*[lastsize]; // для общего случая. если последняя матрица такого же размера как первая, можно использовать block
+		for (int p = 0; p < lastsize; ++p) {
+			last[p] = new double[lastsize];
+		}
+		LUDecomposition(last, lastsize, lastsize);
+		for (int k = 0; k < lastsize; ++k) {
+			for (int l = 0; l < lastsize; ++l) {
+				res[k][l] = last[k][l];
+			}
+		}
+	}	
 	return res;
 }
 
