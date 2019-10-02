@@ -56,7 +56,7 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 			//cout << "Matrix A on " << i << " iteration is" << endl;
 			//matrixPrint(_A, m, n);
 		}
-		cout << "Number of threads is " << omp_get_num_threads() << endl;
+		//cout << "Number of threads is " << omp_get_num_threads() << endl;
 	}
 	return _A;
 }
@@ -64,58 +64,58 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 double** LUBlockDecomposition(double** _A, int n) {
 	int b = 30;
 	double** res = new double*[b];
-	for (int p = 0; p < n; ++p) {
+	for (int p = 0; p < b; ++p) {
 		res[p] = new double[n];
 	}
 
-	//int b = 2;
 	int _i = 0;
 	int lastsize = 0;
-	int lenght; // TODO: написать правильно, если написано неправильно, но а если правильно, то можно вообще не трогать, но тут на вкус и цвет, как говориться.
+	int length;
 		double** block = new double* [b];
 		for (int p = 0; p < b; ++p) {
 			block[p] = new double[b];
 		}
 
 		for (int i = 0; i < n - 1 - b; i += b) {
-		lenght = n - b * (i + 1);
-		double** block1 = new double*[b];
-		for (int p = 0; p < b; ++p) {
-			block1[p] = new double[lenght];
-		}
-		double**block2 = new double*[b];
-		for (int p = 0; p < lenght; ++p) {
-			block2[p] = new double[b];
-		}
-
-
-		for (int k = 0; k < b; ++k) {
-			for (int l = 0; l < b; ++l) {
-				block[k][l] = _A[k + i][l + i];
+			length = n - b * (i + 1);
+			double** block1 = new double*[b];
+			for (int p = 0; p < b; ++p) {
+				block1[p] = new double[length];
 			}
-		}
-		LUDecompositionParal(block, b, b);  // TODO: make it void
-		linSolveDown(block, block1, b, lenght);// сначала считам U
-		linSolveUp(block, block2, b, lenght);  // потом L. матрица block портится 
+			double**block2 = new double*[b];
+			for (int p = 0; p < length; ++p) {
+				block2[p] = new double[b];
+			}
+
+
+			for (int k = 0; k < b; ++k) {
+				for (int l = 0; l < b; ++l) {
+					block[k][l] = _A[k + i][l + i];
+				}
+			}
+			LUDecompositionParal(block, b, b);  // TODO: make it void
+			linSolveDown(block, block1, b, length);// сначала считам U
+			linSolveUp(block, block2, b, length);  // потом L. матрица block портится 
 		
-		for (int k = 0; k < b; ++k) {
-			for (int l = 0; l < n - i * b; ++l) {
-				res[l][k] = block2[k][l];  //сначала записываем L тк на диагонали 1 и их не жалко перекрыть значениями из U
-				res[k][l] = block1[k][l];
+			for (int k = 0; k < b; ++k) {
+				for (int l = 0; l < n - i * b; ++l) {
+					//cout << "block2[k][l] = " << block2[k][l] << endl;
+					res[l][k] = block2[k][l];  //сначала записываем L тк на диагонали 1 и их не жалко перекрыть значениями из U
+					res[k][l] = block1[k][l];
+				}
 			}
-		}
-		_i = i;
-		lastsize = n - _i * b;
-		double** last = new double*[lastsize]; // для общего случая. если последняя матрица такого же размера как первая, можно использовать block
-		for (int p = 0; p < lastsize; ++p) {
-			last[p] = new double[lastsize];
-		}
-		LUDecomposition(last, lastsize, lastsize);
-		for (int k = 0; k < lastsize; ++k) {
-			for (int l = 0; l < lastsize; ++l) {
-				res[k][l] = last[k][l];
+			_i = i;
+			lastsize = n - _i * b;
+			double** last = new double*[lastsize]; // для общего случая. если последняя матрица такого же размера как первая, можно использовать block
+			for (int p = 0; p < lastsize; ++p) {
+				last[p] = new double[lastsize];
 			}
-		}
+			LUDecomposition(last, lastsize, lastsize);
+			for (int k = 0; k < lastsize; ++k) {
+				for (int l = 0; l < lastsize; ++l) {
+					res[k][l] = last[k][l];
+				}
+			}
 	}
 		
 	return res;
@@ -147,12 +147,13 @@ double** createRandomMatrix(int m, int n) {
 }
 
 bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m2, int n2) {
+	double epsNull = 1e-5;
 	if (m1 != m2 || n1 != n2) {
 		return false;
 	}
 	for (int i = 0; i < m1; ++i) {
 		for (int j = 0; j < n1; ++j) {
-			if (_source1[i][j] != _source2[i][j]) {
+			if (abs(_source1[i][j] - _source2[i][j]) > epsNull) {
 				return false;
 			}
 		}
@@ -257,7 +258,7 @@ void linSolveUp(double** _A, double** _b, int n, int m) {
 		}
 		_A[i][i] = 1;
 	}
-	//res = matrixMult(_A, _b, );
+	res = matrixMult(_A, _b, n, n, m);
 	_b = res;
 }
 
@@ -278,4 +279,15 @@ double** matrixMult(double** _source1, double** _source2, int m, int n, int s) {
 		}
 	}
 	return result;
+}
+
+double** getCopy(double** _source, int m, int n) {
+	double** res = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		res[i] = new double[n];
+		for (int j = 0; j < n; ++j) {
+			res[i][j] = _source[i][j];
+		}
+	}
+	return res;
 }
