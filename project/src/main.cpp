@@ -8,8 +8,8 @@ using namespace std;
 
 int main() {
 	// Initial block
-	int m = 8;  // Number of rows
-	int n = 8;  // Number of cols
+	int m = 1024;  // Number of rows
+	int n = 1024;  // Number of cols
 	double** A = createRandomMatrix(m, n);
 	/*cout << "Matrix A is" << endl;
 	matrixPrint(A, m, n);*/
@@ -17,13 +17,6 @@ int main() {
 	/*cout << "Matrix B is" << endl;
 	matrixPrint(B, m, n);*/
 	double** C = getCopy(A, m, n);
-	/*cout << "Initial" << endl;
-	partPrint(C);*/
-	/*for (int i = 0; i < m; ++i) {
-		for (int j = 0; j < n; ++j) {
-			C[i][j] = 0;
-		}
-	}*/
 	/*cout << "Matrix C is" << endl;
 	matrixPrint(C, m, n);*/
 	cout << endl << endl;
@@ -33,11 +26,12 @@ int main() {
 	double inTime = omp_get_wtime();
 	double** newA1 = LUDecomposition(A, m, n);
 	double outTime = omp_get_wtime();
-	cout << "Result is" << endl;
-	matrixPrint(newA1, m, n);
+	/*cout << "Result is" << endl;
+	matrixPrint(newA1, m, n);*/
+	cout << endl;
+	partPrint(newA1);
+	cout << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
-	cout << "Part of result is" << endl;
-	//partPrint(newA1);
 	cout << endl << endl;
 
 
@@ -55,11 +49,9 @@ int main() {
 	inTime = omp_get_wtime();
 	double** newA3 = LUBlockDecomposition(C, m);
 	outTime = omp_get_wtime();
-	cout << "Result is" << endl;
-	matrixPrint(newA3, m, n);
+	/*cout << "Result is" << endl;
+	matrixPrint(newA3, m, n);*/
 	cout << "Time spent: " << outTime - inTime << endl;
-	cout << "Part of result is" << endl;
-	//partPrint(newA3);
 	cout << endl << endl;
 
 
