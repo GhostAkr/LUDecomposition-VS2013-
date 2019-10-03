@@ -10,13 +10,17 @@ double** LUBlockDecomposition(double** _A, int n);
 void matrixPrint(double** _source, int m, int n);
 double** createRandomMatrix(int m, int n);
 bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m2, int n2);
-void linSolveDown(double** _A, double** _b, int n, int m);
-void linSolveUp(double** _A, double** _b, int n, int m);
+double** linSolveDown(double** _A, double** _b, int n, int m);
+double** linSolveUp(double** _A, double** _b, int n, int m);
 double** getU22(double** _source, int m, int n);
 double** getL(double** _source, int m, int n);
 double** getL22(double** _source, int m, int n);
 double** getL32(double** _source, int m, int n);
 double** matrixMult(double** _source1, double** _source2, int m, int n, int s);  // m, n --- size of _source1; s --- nOfCols in _source2
 double** getCopy(double** _source, int m, int n);
+
+void deletePointMatr(double** _source, int m);
+
+void partPrint(double** _source);
 
 #endif  // PROJECT_INCLUDE_LUDECOMPOSITION_H_
