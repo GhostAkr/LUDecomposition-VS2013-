@@ -37,28 +37,36 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 		return nullptr;
 	}
 	int iLim = min(m - 1, n);
-#pragma omp parallel num_threads(4)
-	{
-#pragma omp for
-		for (int i = 0; i < iLim; ++i) {
+//#pragma omp parallel //for num_threads(4)
+	//{
+//#pragma omp for //schedule(static, 4)
+		for (int i = 0; i < iLim; ++i)
+		{
+			//printf("Thread on %d is %d\n", i, omp_get_thread_num());
+			//cout << "Thread on " << i << " is " << omp_get_thread_num() << endl;
+//#pragma omp for
+#pragma omp parallel for
 			for (int k = i + 1; k < m; ++k) {
+				//printf("Thread1 on [%d][%d] is %d\n", k, i, omp_get_thread_num());
 				_A[k][i] /= _A[i][i];
 			}
 			if (i < n) {
+#pragma omp parallel for
 				for (int k = i + 1; k < m; ++k) {
 					for (int l = i + 1; l < n; ++l) {
+						//printf("Thread2 on [%d][%d] is %d\n", k, l, omp_get_thread_num());
 						_A[k][l] -= _A[k][i] * _A[i][l];
 					}
 				}
 			}
 		}
 		//cout << "Number of threads is " << omp_get_num_threads() << endl;
-	}
+	//}
 	return _A;
 }
 
 double** LUBlockDecomposition(double** _A, int n) {
-	int b = 8;
+	int b = 32;
 	double** res = new double*[n];
 	for (int p = 0; p < n; ++p) {
 		res[p] = new double[n];
@@ -125,8 +133,6 @@ double** LUBlockDecomposition(double** _A, int n) {
 				}
 			}
 			LUDecomposition(block, b, b);
-			cout << "BBBBlock" << endl;
-			matrixPrint(block, b, b);
 			for (int i = n - b; i < n; ++i) {
 				for (int j = n - b; j < n; ++j) {
 					res[i][j] = block[i - n + b][j - n + b];
@@ -135,8 +141,10 @@ double** LUBlockDecomposition(double** _A, int n) {
 		}
 		deletePointMatr(block1, b);
 		deletePointMatr(block2, length);
+		deletePointMatr(mm, length);
 	}
-		return res;
+	deletePointMatr(block, b);
+	return res;
 }
 
 // Other methods
@@ -165,15 +173,15 @@ double** createRandomMatrix(int m, int n) {
 }
 
 bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m2, int n2) {
-	double epsNull = 1e-2;
+	double epsNull = 1e-4;
 	if (m1 != m2 || n1 != n2) {
 		return false;
 	}
 	for (int i = 0; i < m1; ++i) {
 		for (int j = 0; j < n1; ++j) {
 			if (abs(_source1[i][j] - _source2[i][j]) > epsNull) {
-				printf("_source1[i][j] = %f\n", _source1[i][j]);
-				printf("_source2[i][j] = %f\n", _source2[i][j]);
+				//cout << "i = " << i << "; j = " << j << endl;
+				//printf("_source1[i][j] = %f; _source2[i][j] = %f\n", _source1[i][j], _source2[i][j]);
 				/*cout << "_source1[i][j] = " << _source1[i][j] << endl;
 				cout << "_source2[i][j] = " << _source2[i][j] << endl;*/
 				return false;
@@ -368,7 +376,10 @@ void partPrint(double** _source) {
 }
 
 void deletePointMatr(double** _source, int m) {
+	//cout << "Deleting matrix" << endl;
+	//matrixPrint(_source, m, 32);
 	for (int i = 0; i < m; ++i) {
+		//cout << "i = " << i << endl;
 		delete[] _source[i];
 	}
 	delete[] _source;
