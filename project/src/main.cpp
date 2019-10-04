@@ -8,8 +8,8 @@ using namespace std;
 
 int main() {
 	// Initial block
-	int m = 1024;  // Number of rows
-	int n = 1024;  // Number of cols
+	int m = 256;  // Number of rows
+	int n = 256;  // Number of cols
 	double** A = createRandomMatrix(m, n);
 	/*cout << "Matrix A is" << endl;
 	matrixPrint(A, m, n);*/
@@ -28,9 +28,9 @@ int main() {
 	double outTime = omp_get_wtime();
 	/*cout << "Result is" << endl;
 	matrixPrint(newA1, m, n);*/
-	cout << endl;
+	/*cout << endl;
 	partPrint(newA1);
-	cout << endl;
+	cout << endl;*/
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
