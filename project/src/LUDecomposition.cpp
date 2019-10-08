@@ -393,59 +393,59 @@ double** linSolveUp(double** _A, double** _b, int n, int m) {
 		res[i] = new double[m];
 	}
 	for (int i = 0; i < m; ++i){
-			e = 1 / _A[i][i];
-			for (int j = i + 1; j < m; ++j){
+		e = 1 / _A[i][i];
+		for (int j = i + 1; j < m; ++j) {
 			_A[i][j] *= e;
 			for (int k = 0; k < i; ++k) {
-				_A[k][j] -= _A[i][k] * _A[i][j];
+				_A[k][j] -= _A[k][i] * _A[i][j];
 			}
 		}
 		for (int k = 0; k < i; ++k) {
-			_A[k][i] = -e*_A[][];
+			_A[k][i] *= -e;
 		}
 		_A[i][i] = e;
 	}
-	cout << "Inv" << endl;
-	matrixPrint(_A, m, m);
+	//cout << "Inv" << endl;
+	//matrixPrint(_A, m, m);
 	res = matrixMult(_b, _A, n, m, m);
 	//_b = res;
 	return res;
 }
 
-double** linSolveUp(double** _A, double** _b, int n, int m) {
-	double** res = new double*[n];
-	for (int i = 0; i < n; ++i) {
-		res[i] = new double[m];
-	}
-	double** ident = new double*[m];
-	for (int i = 0; i < m; ++i) {
-		ident[i] = new double[m];
-		for (int j = 0; j < m; ++j) {
-			ident[i][j] = 0;
-		}
-		ident[i][i] = 1.0;
-	}
-	for (int i = 0; i < m - 1; ++i) {
-		double e = 1.0 / _A[i][i];
-		for (int j = 0; j < m; ++j) {
-			_A[i][j] *= e;
-			ident[i][j] *= e;
-		}
-		for (int k = i + 1; k < m; ++k) {
-			double coeff = 1.0 / _A[k][k];
-			coeff *= _A[i][k];
-			for (int j = i + 1; j < m; ++j) {
-				
-				ident[i][j] -= ident[k][j] * coeff;
-				_A[i][j] -= _A[k][j] * coeff;
-			}
-		}
-	}
-	double eLast = 1.0 / _A[m - 1][m - 1];
-	ident[m - 1][m - 1] *= eLast;
-	res = matrixMult(_b, ident, n, m, m);
-	return res;
-}
+//double** linSolveUp(double** _A, double** _b, int n, int m) {
+//	double** res = new double*[n];
+//	for (int i = 0; i < n; ++i) {
+//		res[i] = new double[m];
+//	}
+//	double** ident = new double*[m];
+//	for (int i = 0; i < m; ++i) {
+//		ident[i] = new double[m];
+//		for (int j = 0; j < m; ++j) {
+//			ident[i][j] = 0;
+//		}
+//		ident[i][i] = 1.0;
+//	}
+//	for (int i = 0; i < m - 1; ++i) {
+//		double e = 1.0 / _A[i][i];
+//		for (int j = 0; j < m; ++j) {
+//			_A[i][j] *= e;
+//			ident[i][j] *= e;
+//		}
+//		for (int k = i + 1; k < m; ++k) {
+//			double coeff = 1.0 / _A[k][k];
+//			coeff *= _A[i][k];
+//			for (int j = i + 1; j < m; ++j) {
+//				
+//				ident[i][j] -= ident[k][j] * coeff;
+//				_A[i][j] -= _A[k][j] * coeff;
+//			}
+//		}
+//	}
+//	double eLast = 1.0 / _A[m - 1][m - 1];
+//	ident[m - 1][m - 1] *= eLast;
+//	res = matrixMult(_b, ident, n, m, m);
+//	return res;
+//}
 
 double** linSolveUpParal(double** _A, double** _b, int n, int m) {
 	double** res = new double*[n];
