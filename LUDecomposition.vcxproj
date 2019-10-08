@@ -68,9 +68,11 @@
   <ItemGroup>
     <ClCompile Include="project\src\LUDecomposition.cpp" />
     <ClCompile Include="project\src\main.cpp" />
+    <ClCompile Include="rowMatrix.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="project\include\LUDecomposition.h" />
+    <ClInclude Include="rowMatrix.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
