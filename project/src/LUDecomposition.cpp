@@ -386,30 +386,31 @@ double** linSolveDownParal(double** _A, double** _b, int n, int m) {
 	return res;
 }
 
-//double** linSolveUp(double** _A, double** _b, int n, int m) {
-//	double e;
-//	double** res = new double*[n];
-//	for (int i = 0; i < n; ++i) {
-//		res[i] = new double[m];
-//	}
-//	for (int i = 0; i < m; ++i){
-//			e = 1 / _A[i][i];
-//		for (int j = 0; j < m; ++j){
-//			_A[i][j] *= e;
-//
-//		}
-//		for (int k = 0; k < i; ++k) {
-//			_A[k + 1][k] = -e * _A[k + 1][k];
-//			_A[i - 1][j] -= _A[i][j] * _A[i - 1][j];
-//		}
-//		_A[i][i] = e;
-//	}
-//	cout << "Inv" << endl;
-//	matrixPrint(_A, m, m);
-//	res = matrixMult(_b, _A, n, m, m);
-//	//_b = res;
-//	return res;
-//}
+double** linSolveUp(double** _A, double** _b, int n, int m) {
+	double e;
+	double** res = new double*[n];
+	for (int i = 0; i < n; ++i) {
+		res[i] = new double[m];
+	}
+	for (int i = 0; i < m; ++i){
+			e = 1 / _A[i][i];
+			for (int j = i + 1; j < m; ++j){
+			_A[i][j] *= e;
+			for (int k = 0; k < i; ++k) {
+				_A[k][j] -= _A[i][k] * _A[i][j];
+			}
+		}
+		for (int k = 0; k < i; ++k) {
+			_A[k][i] = -e*_A[][];
+		}
+		_A[i][i] = e;
+	}
+	cout << "Inv" << endl;
+	matrixPrint(_A, m, m);
+	res = matrixMult(_b, _A, n, m, m);
+	//_b = res;
+	return res;
+}
 
 double** linSolveUp(double** _A, double** _b, int n, int m) {
 	double** res = new double*[n];
