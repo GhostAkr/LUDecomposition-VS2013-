@@ -66,7 +66,7 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 }
 
 double** LUBlockDecomposition(double** _A, int n) {
-	int b = 32;
+	int b = 64;
 	double** res = new double*[n];
 	for (int p = 0; p < n; ++p) {
 		res[p] = new double[n];
@@ -79,11 +79,17 @@ double** LUBlockDecomposition(double** _A, int n) {
 		block[p] = new double[b];
 	}
 	for (int i = 0; i < n; i += b) {
+		/*if (i == 0) {
+			cout << "Before" << endl;
+		}*/
 		length = n - i - b;
 		double** block1 = new double*[b];
 		for (int p = 0; p < b; ++p) {
 			block1[p] = new double[length];
 		}
+		/*if (i == 0) {
+			cout << "After" << endl;
+		}*/
 		double** block2 = new double*[length];
 		for (int p = 0; p < length; ++p) {
 			block2[p] = new double[b];
@@ -148,7 +154,7 @@ double** LUBlockDecomposition(double** _A, int n) {
 }
 
 double** LUBlockDecompositionParal(double** _A, int n) {
-	int b = 32;
+	int b = 2;
 	double** res = new double*[n];
 	for (int p = 0; p < n; ++p) {
 		res[p] = new double[n];
@@ -161,11 +167,13 @@ double** LUBlockDecompositionParal(double** _A, int n) {
 		block[p] = new double[b];
 	}
 	for (int i = 0; i < n; i += b) {
+		
 		length = n - i - b;
 		double** block1 = new double*[b];
 		for (int p = 0; p < b; ++p) {
 			block1[p] = new double[length];
 		}
+		
 		double** block2 = new double*[length];
 		for (int p = 0; p < length; ++p) {
 			block2[p] = new double[b];
@@ -265,7 +273,7 @@ bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m
 		for (int j = 0; j < n1; ++j) {
 			if (abs(_source1[i][j] - _source2[i][j]) > epsNull) {
 				//cout << "i = " << i << "; j = " << j << endl;
-				//printf("_source1[i][j] = %f; _source2[i][j] = %f\n", _source1[i][j], _source2[i][j]);
+				printf("_source1[i][j] = %f; _source2[i][j] = %f\n", _source1[i][j], _source2[i][j]);
 				/*cout << "_source1[i][j] = " << _source1[i][j] << endl;
 				cout << "_source2[i][j] = " << _source2[i][j] << endl;*/
 				return false;
@@ -293,56 +301,56 @@ double** getU22(double** _source, int m, int n) {
 	return result;
 }
 
-double** getL(double** _source, int m, int n) {
-	double** result = new double* [m];
-	for (int i = 0; i < m; ++i) {
-		result[i] = new double[m];
-	}
-	for (int i = 0; i < m; ++i) {
-		for (int j = 0; j < m; ++j) {
-			if (i == j) {
-				result[i][j] = 1.0;
-			}
-			else {
-				result[i][j] = 0;
-			}
-		}
-	}
-	for (int i = 1; i < m; ++i) {
-		for (int j = 0; j < i; ++j) {
-			result[i][j] = _source[i][j];
-		}
-	}
-	return result;
-}
+//double** getL(double** _source, int m, int n) {
+//	double** result = new double* [m];
+//	for (int i = 0; i < m; ++i) {
+//		result[i] = new double[m];
+//	}
+//	for (int i = 0; i < m; ++i) {
+//		for (int j = 0; j < m; ++j) {
+//			if (i == j) {
+//				result[i][j] = 1.0;
+//			}
+//			else {
+//				result[i][j] = 0;
+//			}
+//		}
+//	}
+//	for (int i = 1; i < m; ++i) {
+//		for (int j = 0; j < i; ++j) {
+//			result[i][j] = _source[i][j];
+//		}
+//	}
+//	return result;
+//}
 
-double** getL22(double** _source, int m, int n) {
-	double** L = getL(_source, m, n);
-	double** result = new double* [m / 2];
-	for (int i = 0; i < m / 2; ++i) {
-		result[i] = new double[m];
-	}
-	for (int i = 0; i < m / 2; ++i) {
-		for (int j = 0; j < m; ++j) {
-			result[i][j] = L[i][j];
-		}
-	}
-	return result;
-}
+//double** getL22(double** _source, int m, int n) {
+//	double** L = getL(_source, m, n);
+//	double** result = new double* [m / 2];
+//	for (int i = 0; i < m / 2; ++i) {
+//		result[i] = new double[m];
+//	}
+//	for (int i = 0; i < m / 2; ++i) {
+//		for (int j = 0; j < m; ++j) {
+//			result[i][j] = L[i][j];
+//		}
+//	}
+//	return result;
+//}
 
-double** getL32(double** _source, int m, int n) {
-	double** L = getL(_source, m, n);
-	double** result = new double* [m / 2];
-	for (int i = 0; i < m / 2; ++i) {
-		result[i] = new double[m];
-	}
-	for (int i = m / 2; i < m; ++i) {
-		for (int j = 0; j < m; ++j) {
-			result[i][j] = L[i][j];
-		}
-	}
-	return result;
-}
+//double** getL32(double** _source, int m, int n) {
+//	double** L = getL(_source, m, n);
+//	double** result = new double* [m / 2];
+//	for (int i = 0; i < m / 2; ++i) {
+//		result[i] = new double[m];
+//	}
+//	for (int i = m / 2; i < m; ++i) {
+//		for (int j = 0; j < m; ++j) {
+//			result[i][j] = L[i][j];
+//		}
+//	}
+//	return result;
+//}
 
 double** linSolveDown(double** _A, double** _b, int n, int m) {
 	double** res = new double*[n];
@@ -386,66 +394,66 @@ double** linSolveDownParal(double** _A, double** _b, int n, int m) {
 	return res;
 }
 
-double** linSolveUp(double** _A, double** _b, int n, int m) {
-	double e;
-	double** res = new double*[n];
-	for (int i = 0; i < n; ++i) {
-		res[i] = new double[m];
-	}
-	for (int i = 0; i < m; ++i){
-		e = 1 / _A[i][i];
-		for (int j = i + 1; j < m; ++j) {
-			_A[i][j] *= e;
-			for (int k = 0; k < i; ++k) {
-				_A[k][j] -= _A[k][i] * _A[i][j];
-			}
-		}
-		for (int k = 0; k < i; ++k) {
-			_A[k][i] *= -e;
-		}
-		_A[i][i] = e;
-	}
-	//cout << "Inv" << endl;
-	//matrixPrint(_A, m, m);
-	res = matrixMult(_b, _A, n, m, m);
-	//_b = res;
-	return res;
-}
-
 //double** linSolveUp(double** _A, double** _b, int n, int m) {
+//	double e;
 //	double** res = new double*[n];
 //	for (int i = 0; i < n; ++i) {
 //		res[i] = new double[m];
 //	}
-//	double** ident = new double*[m];
-//	for (int i = 0; i < m; ++i) {
-//		ident[i] = new double[m];
-//		for (int j = 0; j < m; ++j) {
-//			ident[i][j] = 0;
-//		}
-//		ident[i][i] = 1.0;
-//	}
-//	for (int i = 0; i < m - 1; ++i) {
-//		double e = 1.0 / _A[i][i];
-//		for (int j = 0; j < m; ++j) {
+//	for (int i = 0; i < m; ++i){
+//		e = 1 / _A[i][i];
+//		for (int j = i + 1; j < m; ++j) {
 //			_A[i][j] *= e;
-//			ident[i][j] *= e;
-//		}
-//		for (int k = i + 1; k < m; ++k) {
-//			double coeff = 1.0 / _A[k][k];
-//			coeff *= _A[i][k];
-//			for (int j = i + 1; j < m; ++j) {
-//				
-//				ident[i][j] -= ident[k][j] * coeff;
-//				_A[i][j] -= _A[k][j] * coeff;
+//			for (int k = 0; k < i; ++k) {
+//				_A[k][j] -= _A[k][i] * _A[i][j];
 //			}
 //		}
+//		for (int k = 0; k < i; ++k) {
+//			_A[k][i] *= -e;
+//		}
+//		_A[i][i] = e;
 //	}
-//	double eLast = 1.0 / _A[m - 1][m - 1];
-//	ident[m - 1][m - 1] *= eLast;
-//	res = matrixMult(_b, ident, n, m, m);
+//	//cout << "Inv" << endl;
+//	//matrixPrint(_A, m, m);
+//	res = matrixMult(_b, _A, n, m, m);
+//	//_b = res;
 //	return res;
 //}
+
+double** linSolveUp(double** _A, double** _b, int n, int m) {
+	double** res = new double*[n];
+	for (int i = 0; i < n; ++i) {
+		res[i] = new double[m];
+	}
+	double** ident = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		ident[i] = new double[m];
+		for (int j = 0; j < m; ++j) {
+			ident[i][j] = 0;
+		}
+		ident[i][i] = 1.0;
+	}
+	for (int i = 0; i < m - 1; ++i) {
+		double e = 1.0 / _A[i][i];
+		for (int j = 0; j < m; ++j) {
+			_A[i][j] *= e;
+			ident[i][j] *= e;
+		}
+		for (int k = i + 1; k < m; ++k) {
+			double coeff = 1.0 / _A[k][k];
+			coeff *= _A[i][k];
+			for (int j = i + 1; j < m; ++j) {
+				
+				ident[i][j] -= ident[k][j] * coeff;
+				_A[i][j] -= _A[k][j] * coeff;
+			}
+		}
+	}
+	double eLast = 1.0 / _A[m - 1][m - 1];
+	ident[m - 1][m - 1] *= eLast;
+	res = matrixMult(_b, ident, n, m, m);
+	return res;
+}
 
 double** linSolveUpParal(double** _A, double** _b, int n, int m) {
 	double** res = new double*[n];
@@ -529,4 +537,84 @@ void deletePointMatr(double** _source, int m) {
 		delete[] _source[i];
 	}
 	delete[] _source;
+}
+
+double norm(double** _source, int m, int n) {
+	double max = 0.0;
+	for (int i = 0; i < m; ++i) {
+		double sum = 0.0;
+		for (int j = 0; j < n; ++j) {
+			sum += fabs(_source[i][j]);
+		}
+		if (sum > max) {
+			max = sum;
+		}
+	}
+	return max;
+}
+
+double** matrixDiff(double** _source1, double** _source2, int m, int n) {
+	double** result = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		result[i] = new double[n];
+	}
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			result[i][j] = _source1[i][j] - _source2[i][j];
+		}
+	}
+	return result;
+}
+
+double** getL(double** _source, int m) {
+	double** result = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		result[i] = new double[m];
+		for (int j = 0; j < m; ++j) {
+			result[i][j] = 0.0;
+		}
+	}
+	for (int i = 0; i < m; ++i) {
+		result[i][i] = 1.0;
+		for (int j = 0; j < i; ++j) {
+			result[i][j] = _source[i][j];
+		}
+	}
+	return result;
+}
+
+double** getU(double** _source, int m) {
+	double** result = new double*[m];
+	for (int i = 0; i < m; ++i) {
+		result[i] = new double[m];
+		for (int j = 0; j < m; ++j) {
+			result[i][j] = 0.0;
+		}
+	}
+	for (int i = 0; i < m; ++i) {
+		for (int j = i; j < m; ++j) {
+			result[i][j] = _source[i][j];
+		}
+	}
+	return result;
+}
+
+double checkLU(double** _initial, double** _final, int m) {
+	double** L = getL(_final, m);
+	double** U = getU(_final, m);
+	/*cout << endl;
+	cout << "L is" << endl;
+	matrixPrint(L, m, m);
+	cout << endl;
+	cout << "U is" << endl;
+	cout << endl;
+	matrixPrint(U, m, m);*/
+	double** LU = matrixMult(L, U, m, m, m);
+	double** diff = matrixDiff(_initial, LU, m, m);
+	deletePointMatr(L, m);
+	deletePointMatr(U, m);
+	deletePointMatr(LU, m);
+	double result = norm(diff, m, m);
+	deletePointMatr(diff, m);
+	return result;
 }

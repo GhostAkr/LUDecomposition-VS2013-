@@ -8,9 +8,14 @@ using namespace std;
 
 int main() {
 	// Initial block
-	int m = 512;  // Number of rows
-	int n = 512;  // Number of cols
-	double** A = createRandomMatrix(m, n);
+	int m = 1024;  // Number of rows
+	int n = 1024;  // Number of cols
+	double** initialMatrix = createRandomMatrix(m, n);
+	/*cout << endl;
+	cout << "Initial matrix is" << endl;
+	matrixPrint(initialMatrix, m, m);
+	cout << endl;*/
+	double** A = getCopy(initialMatrix, m, n);
 	/*cout << "Matrix A is" << endl;
 	matrixPrint(A, m, n);*/
 	double** B = getCopy(A, m, n);
@@ -20,7 +25,7 @@ int main() {
 	/*cout << "Matrix C is" << endl;
 	matrixPrint(C, m, n);*/
 	double** D = getCopy(A, m, n);
-	cout << endl << endl;
+	//cout << endl << endl;
 
 
 	cout << "Usual LU-Decomposition" << endl;
@@ -32,8 +37,11 @@ int main() {
 	/*cout << endl;
 	partPrint(newA1);
 	cout << endl;*/
+	cout << "Difference with A = " << checkLU(initialMatrix, newA1, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
+
+	
 
 
 	cout << "Parallel usual LU-Decomposition" << endl;
@@ -42,6 +50,7 @@ int main() {
 	outTime = omp_get_wtime();
 	/*cout << "Result is" << endl;
 	matrixPrint(newA2, m, n);*/
+	cout << "Difference with A = " << checkLU(initialMatrix, newA2, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
@@ -52,43 +61,46 @@ int main() {
 	outTime = omp_get_wtime();
 	/*cout << "Result is" << endl;
 	matrixPrint(newA3, m, n);*/
+	cout << "Difference with A = " << checkLU(initialMatrix, newA3, m) << endl;
+	//printf("%f", checkLU(initialMatrix, newA3, m));
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
 	
-	cout << "Parallel block LU-Decomposition" << endl;
-	inTime = omp_get_wtime();
-	double** newA4 = LUBlockDecompositionParal(D, m);
-	outTime = omp_get_wtime();
-	/*cout << "Result is" << endl;
-	matrixPrint(newA3, m, n);*/
-	cout << "Time spent: " << outTime - inTime << endl;
-	cout << endl << endl;
+	//cout << "Parallel block LU-Decomposition" << endl;
+	//inTime = omp_get_wtime();
+	//double** newA4 = LUBlockDecompositionParal(D, m);
+	//outTime = omp_get_wtime();
+	///*cout << "Result is" << endl;
+	//matrixPrint(newA3, m, n);*/
+	//cout << "Difference with A = " << checkLU(initialMatrix, newA4, m) << endl;
+	//cout << "Time spent: " << outTime - inTime << endl;
+	//cout << endl << endl;
 
 
-	// Comparing
-	if (compareMatrices(newA1, m, n, newA3, m, n)) {
-		cout << "Matrixes usual and block are equal" << endl;
-	}
-	else {
-		cout << "Matrixes usual and block are NOT equal" << endl;
-	}
+	//// Comparing
+	//if (compareMatrices(newA1, m, n, newA3, m, n)) {
+	//	cout << "Matrixes usual and block are equal" << endl;
+	//}
+	//else {
+	//	cout << "Matrixes usual and block are NOT equal" << endl;
+	//}
 
-	// Comparing
-	if (compareMatrices(newA1, m, n, newA2, m, n)) {
-		cout << "Matrixes usual and parallel are equal" << endl;
-	}
-	else {
-		cout << "Matrixes usual and parallel are NOT equal" << endl;
-	}
+	//// Comparing
+	//if (compareMatrices(newA1, m, n, newA2, m, n)) {
+	//	cout << "Matrixes usual and parallel are equal" << endl;
+	//}
+	//else {
+	//	cout << "Matrixes usual and parallel are NOT equal" << endl;
+	//}
 
-	// Comparing
-	if (compareMatrices(newA1, m, n, newA4, m, n)) {
-		cout << "Matrixes usual and parallel (block) are equal" << endl;
-	}
-	else {
-		cout << "Matrixes usual and parallel (block) are NOT equal" << endl;
-	}
+	//// Comparing
+	//if (compareMatrices(newA1, m, n, newA4, m, n)) {
+	//	cout << "Matrixes usual and parallel (block) are equal" << endl;
+	//}
+	//else {
+	//	cout << "Matrixes usual and parallel (block) are NOT equal" << endl;
+	//}
 
 
 	deletePointMatr(A, m);
@@ -96,6 +108,6 @@ int main() {
 	deletePointMatr(C, m);
 	deletePointMatr(D, m);
 	deletePointMatr(newA3, m);
-	deletePointMatr(newA4, m);
+	//deletePointMatr(newA4, m);
 	system("pause");
 }
