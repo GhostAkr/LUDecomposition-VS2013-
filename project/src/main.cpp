@@ -78,31 +78,6 @@ int main() {
 	//cout << endl << endl;
 
 
-	//// Comparing
-	//if (compareMatrices(newA1, m, n, newA3, m, n)) {
-	//	cout << "Matrixes usual and block are equal" << endl;
-	//}
-	//else {
-	//	cout << "Matrixes usual and block are NOT equal" << endl;
-	//}
-
-	//// Comparing
-	//if (compareMatrices(newA1, m, n, newA2, m, n)) {
-	//	cout << "Matrixes usual and parallel are equal" << endl;
-	//}
-	//else {
-	//	cout << "Matrixes usual and parallel are NOT equal" << endl;
-	//}
-
-	//// Comparing
-	//if (compareMatrices(newA1, m, n, newA4, m, n)) {
-	//	cout << "Matrixes usual and parallel (block) are equal" << endl;
-	//}
-	//else {
-	//	cout << "Matrixes usual and parallel (block) are NOT equal" << endl;
-	//}
-
-
 	deletePointMatr(A, m);
 	deletePointMatr(B, m);
 	deletePointMatr(C, m);

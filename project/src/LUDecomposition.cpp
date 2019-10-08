@@ -272,10 +272,7 @@ bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m
 	for (int i = 0; i < m1; ++i) {
 		for (int j = 0; j < n1; ++j) {
 			if (abs(_source1[i][j] - _source2[i][j]) > epsNull) {
-				//cout << "i = " << i << "; j = " << j << endl;
-				printf("_source1[i][j] = %f; _source2[i][j] = %f\n", _source1[i][j], _source2[i][j]);
-				/*cout << "_source1[i][j] = " << _source1[i][j] << endl;
-				cout << "_source2[i][j] = " << _source2[i][j] << endl;*/
+				//printf("_source1[i][j] = %f; _source2[i][j] = %f\n", _source1[i][j], _source2[i][j]);
 				return false;
 			}
 		}
@@ -300,57 +297,6 @@ double** getU22(double** _source, int m, int n) {
 	}
 	return result;
 }
-
-//double** getL(double** _source, int m, int n) {
-//	double** result = new double* [m];
-//	for (int i = 0; i < m; ++i) {
-//		result[i] = new double[m];
-//	}
-//	for (int i = 0; i < m; ++i) {
-//		for (int j = 0; j < m; ++j) {
-//			if (i == j) {
-//				result[i][j] = 1.0;
-//			}
-//			else {
-//				result[i][j] = 0;
-//			}
-//		}
-//	}
-//	for (int i = 1; i < m; ++i) {
-//		for (int j = 0; j < i; ++j) {
-//			result[i][j] = _source[i][j];
-//		}
-//	}
-//	return result;
-//}
-
-//double** getL22(double** _source, int m, int n) {
-//	double** L = getL(_source, m, n);
-//	double** result = new double* [m / 2];
-//	for (int i = 0; i < m / 2; ++i) {
-//		result[i] = new double[m];
-//	}
-//	for (int i = 0; i < m / 2; ++i) {
-//		for (int j = 0; j < m; ++j) {
-//			result[i][j] = L[i][j];
-//		}
-//	}
-//	return result;
-//}
-
-//double** getL32(double** _source, int m, int n) {
-//	double** L = getL(_source, m, n);
-//	double** result = new double* [m / 2];
-//	for (int i = 0; i < m / 2; ++i) {
-//		result[i] = new double[m];
-//	}
-//	for (int i = m / 2; i < m; ++i) {
-//		for (int j = 0; j < m; ++j) {
-//			result[i][j] = L[i][j];
-//		}
-//	}
-//	return result;
-//}
 
 double** linSolveDown(double** _A, double** _b, int n, int m) {
 	double** res = new double*[n];
@@ -530,10 +476,7 @@ void partPrint(double** _source) {
 }
 
 void deletePointMatr(double** _source, int m) {
-	//cout << "Deleting matrix" << endl;
-	//matrixPrint(_source, m, 32);
 	for (int i = 0; i < m; ++i) {
-		//cout << "i = " << i << endl;
 		delete[] _source[i];
 	}
 	delete[] _source;
@@ -602,13 +545,6 @@ double** getU(double** _source, int m) {
 double checkLU(double** _initial, double** _final, int m) {
 	double** L = getL(_final, m);
 	double** U = getU(_final, m);
-	/*cout << endl;
-	cout << "L is" << endl;
-	matrixPrint(L, m, m);
-	cout << endl;
-	cout << "U is" << endl;
-	cout << endl;
-	matrixPrint(U, m, m);*/
 	double** LU = matrixMult(L, U, m, m, m);
 	double** diff = matrixDiff(_initial, LU, m, m);
 	deletePointMatr(L, m);
