@@ -10,9 +10,9 @@ using namespace std;
 int main() {
 
 	// Initial block
-	int m = 1024;  // Number of rows
-	int n = 1024;  // Number of cols
-	int b = 32;
+	int m = 512;  // Number of rows
+	int n = 512;  // Number of cols
+	int b = 16;
 	double* initialMatrix = createRandomRowMatrix(m, n);
 	double* A = getCopy(initialMatrix, m, n);
 	double* B = getCopy(initialMatrix, m, n);

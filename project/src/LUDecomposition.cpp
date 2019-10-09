@@ -157,8 +157,8 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				res[k * n + l] = block[(k - i) * b + (l - i)];
 			}
 		}
-		block1 = linSolveDown(block, block1, b, length);  // Counting U
-		block2 = linSolveUp(block, block2, length, b);   // Counting L
+		block1 = linSolveDownParal(block, block1, b, length);  // Counting U
+		block2 = linSolveUpParal(block, block2, length, b);   // Counting L
 		for (int k = i; k < b + i; ++k) {
 			for (int l = i + b; l < n; ++l) {
 				res[l * n + k] = block2[(l - i - b) * b + (k - i)];
@@ -265,9 +265,19 @@ double* linSolveDownParal(double* _A, double* _b, int n, int m) {
 	for (int i = 0; i < n; ++i){
 		for (int j = 0; j < m; ++j){
 			res[i * m + j] = _b[i * m + j];
-			for (int k = 0; k < i; k++) {
-				res[i * m + j] -= _A[i * n + k] * res[k * m + j];
-			}
+			double tmp = 0.0;
+#//pragma omp parallel 
+	//		{
+				//cout << "Num of threads = " << omp_get_num_threads() << endl;
+//#pragma omp for reduction(+:tmp)
+				for (int k = 0; k < i; k++) {
+					//cout << "Num of threads = " << omp_get_thread_num() << endl;
+					//tmp += _A[i * n + k] * res[k * m + j];
+					res[i * m + j] -= _A[i * n + k] * res[k * m + j];
+				}
+
+//			}
+			//res[i * m + j] -= tmp;
 		}
 	}
 	return res;
@@ -342,6 +352,7 @@ double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 	}
 	for (int i = 0; i < m - 1; ++i) {
 		double e = 1.0 / _A[i * m + i];
+//#pragma omp parallel for
 		for (int j = 0; j < m; ++j) {
 			_A[i * m + j] *= e;
 			ident[i * m + j] *= e;
@@ -349,8 +360,8 @@ double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 		for (int k = i + 1; k < m; ++k) {
 			double coeff = 1.0 / _A[k * m + k];
 			coeff *= _A[i * m + k];
+//#pragma omp parallel for
 			for (int j = i + 1; j < m; ++j) {
-
 				ident[i * m + j] -= ident[k * m + j] * coeff;
 				_A[i * m + j] -= _A[k * m + j] * coeff;
 			}
@@ -463,3 +474,17 @@ double checkLU(double* _initial, double* _final, int m) {
 	deletePointMatr(diff, m);
 	return result;
 }
+
+//double* LUDecomposition(double* _A, int m, int n)
+//{
+//	for (int i = 0; i < n; i++) {
+//
+//		for (int j = i + 1; j < n; j++)
+//		{
+//			_A[j * m + i] /= _A[i * m + i];
+//
+//			for (int k = i + 1; k < n; k++) _A[j * m + k] -= _A[i * m + k] * _A[j * m + i];
+//		}
+//	}
+//	return _A;
+//}
