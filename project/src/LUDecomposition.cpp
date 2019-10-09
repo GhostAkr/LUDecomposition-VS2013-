@@ -31,7 +31,7 @@ double* LUDecomposition(double* _A, int m, int n) {
 	return _A;
 }
 
-double** LUDecompositionParal(double** _A, int m, int n) {
+double* LUDecompositionParal(double* _A, int m, int n) {
 	if (m < n) {
 		cout << "Wrong sizes in LUBlockDecomposition" << endl;
 		return nullptr;
@@ -48,14 +48,14 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 #pragma omp parallel for
 			for (int k = i + 1; k < m; ++k) {
 				//printf("Thread1 on [%d][%d] is %d\n", k, i, omp_get_thread_num());
-				_A[k][i] /= _A[i][i];
+				_A[k * n + i] /= _A[i * n + i];
 			}
 			if (i < n) {
 #pragma omp parallel for
 				for (int k = i + 1; k < m; ++k) {
 					for (int l = i + 1; l < n; ++l) {
 						//printf("Thread2 on [%d][%d] is %d\n", k, l, omp_get_thread_num());
-						_A[k][l] -= _A[k][i] * _A[i][l];
+						_A[k * n + l] -= _A[k * n + i] * _A[i * n + l];
 					}
 				}
 			}
@@ -65,8 +65,8 @@ double** LUDecompositionParal(double** _A, int m, int n) {
 	return _A;
 }
 
-double* LUBlockDecomposition(double* _A, int n) {
-	int b = 40;
+double* LUBlockDecomposition(double* _A, int n, int b) {
+	//int b = 40;
 	double* res = new double[n * n];
 	int _i = 0;
 	int lastsize = 0;
@@ -135,91 +135,76 @@ double* LUBlockDecomposition(double* _A, int n) {
 	return res;
 }
 
-//double** LUBlockDecompositionParal(double** _A, int n) {
-//	int b = 2;
-//	double** res = new double*[n];
-//	for (int p = 0; p < n; ++p) {
-//		res[p] = new double[n];
-//	}
-//	int _i = 0;
-//	int lastsize = 0;
-//	int length;
-//	double** block = new double*[b];
-//	for (int p = 0; p < b; ++p) {
-//		block[p] = new double[b];
-//	}
-//	for (int i = 0; i < n; i += b) {
-//		
-//		length = n - i - b;
-//		double** block1 = new double*[b];
-//		for (int p = 0; p < b; ++p) {
-//			block1[p] = new double[length];
-//		}
-//		
-//		double** block2 = new double*[length];
-//		for (int p = 0; p < length; ++p) {
-//			block2[p] = new double[b];
-//		}
-//		for (int k = 0; k < b; ++k) {
-//			for (int l = 0; l < b; ++l) {
-//				block[k][l] = _A[k + i][l + i];
-//			}
-//		}
-//		for (int k = 0; k < b; ++k) {
-//			for (int l = 0; l < length; ++l) {
-//				block1[k][l] = _A[k + i][l + i + b];
-//			}
-//		}
-//
-//		for (int k = 0; k < length; ++k) {
-//			for (int l = 0; l < b; ++l) {
-//				block2[k][l] = _A[k + i + b][l + i];
-//			}
-//		}
-//		LUDecomposition(block, b, b);
-//		for (int k = i; k < i + b; ++k) {
-//			for (int l = i; l < i + b; ++l) {
-//				res[k][l] = block[k - i][l - i];
-//			}
-//		}
-//		double** tmpBlock = getCopy(block, b, b);
-//		block1 = linSolveDownParal(block, block1, b, length);  // Counting U
-//		block2 = linSolveUpParal(tmpBlock, block2, length, b);   // Counting L	
-//		deletePointMatr(tmpBlock, b);
-//		for (int k = i; k < b + i; ++k) {
-//			for (int l = i + b; l < n; ++l) {
-//				res[l][k] = block2[l - i - b][k - i];
-//				res[k][l] = block1[k - i][l - i - b];
-//			}
-//		}
-//		double** mm = matrixMult(block2, block1, length, b, length);
-//		for (int k = 0; k < length; ++k) {
-//			for (int l = 0; l < length; ++l) {
-//				_A[i + b + k][i + b + l] -= mm[k][l];
-//			}
-//		}
-//
-//		_i = i;
-//		if (i == n - b) {
-//			for (int k = 0; k < b; ++k) {
-//				for (int l = 0; l < b; ++l) {
-//					block[k][l] = _A[n - b + k][n - b + l];
-//				}
-//			}
-//			LUDecomposition(block, b, b);
-//			for (int i = n - b; i < n; ++i) {
-//				for (int j = n - b; j < n; ++j) {
-//					res[i][j] = block[i - n + b][j - n + b];
-//				}
-//			}
-//		}
-//		deletePointMatr(block1, b);
-//		deletePointMatr(block2, length);
-//		deletePointMatr(mm, length);
-//	}
-//	deletePointMatr(block, b);
-//	return res;
-//}
+double* LUBlockDecompositionParal(double* _A, int n, int b) {
+	//int b = 40;
+	double* res = new double[n * n];
+	int _i = 0;
+	int lastsize = 0;
+	int length;
+	double* block = new double[b * b];
+	for (int i = 0; i < n; i += b) {
+		length = n - i - b;
+		double* block1 = new double[b * length];
+		double* block2 = new double[length * b];
+		for (int k = 0; k < b; ++k) {
+			for (int l = 0; l < b; ++l) {
+				block[k * b + l] = _A[(k + i) * n + (l + i)];
+			}
+		}
+		for (int k = 0; k < b; ++k) {
+			for (int l = 0; l < length; ++l) {
+				block1[k * length + l] = _A[(k + i) * n + (l + i + b)];
+			}
+		}
+
+		for (int k = 0; k < length; ++k) {
+			for (int l = 0; l < b; ++l) {
+				block2[k * b + l] = _A[(k + i + b) * n + (l + i)];
+			}
+		}
+		LUDecomposition(block, b, b);
+		for (int k = i; k < i + b; ++k) {
+			for (int l = i; l < i + b; ++l) {
+				res[k * n + l] = block[(k - i) * b + (l - i)];
+			}
+		}
+		block1 = linSolveDown(block, block1, b, length);  // Counting U
+		block2 = linSolveUp(block, block2, length, b);   // Counting L
+		for (int k = i; k < b + i; ++k) {
+			for (int l = i + b; l < n; ++l) {
+				res[l * n + k] = block2[(l - i - b) * b + (k - i)];
+				res[k * n + l] = block1[(k - i) * length + (l - i - b)];
+			}
+		}
+		double* mm = matrixMult(block2, block1, length, b, length);
+		for (int k = 0; k < length; ++k) {
+			for (int l = 0; l < length; ++l) {
+				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
+			}
+		}
+
+		_i = i;
+		if (i == n - b) {
+			for (int k = 0; k < b; ++k) {
+				for (int l = 0; l < b; ++l) {
+					block[k * b + l] = _A[(n - b + k) * n + (n - b + l)];
+				}
+			}
+			LUDecomposition(block, b, b);
+			for (int i = n - b; i < n; ++i) {
+				for (int j = n - b; j < n; ++j) {
+					res[i * n + j] = block[(i - n + b) * b + (j - n + b)];
+				}
+			}
+		}
+		deletePointMatr(block1, b);
+		deletePointMatr(block2, length);
+		deletePointMatr(mm, length);
+	}
+	deletePointMatr(block, b);
+	return res;
+}
+
 
 // Other methods
 
@@ -273,24 +258,6 @@ bool compareMatrices(double** _source1, int m1, int n1, double** _source2, int m
 	return true;
 }
 
-double** getU22(double** _source, int m, int n) {
-	double** result = new double* [m];
-	for (int i = 0; i < m; ++i) {
-		result[i] = new double[n];
-	}
-	for (int i = 0; i < m; ++i) {
-		for (int j = 0; j < n; ++j) {
-			result[i][j] = 0;
-		}
-	}
-	for (int i = 0; i < n; ++i) {
-		for (int j = i; j < n; ++j) {
-			result[i][j] = _source[i][j];
-		}
-	}
-	return result;
-}
-
 double* linSolveDown(double* _A, double* _b, int n, int m) {
 	double* res = new double[n * m];
 	for (int i = 0; i < n; ++i){
@@ -304,31 +271,19 @@ double* linSolveDown(double* _A, double* _b, int n, int m) {
 	return res;
 }
 
-double** linSolveDownParal(double** _A, double** _b, int n, int m) {
-	double** res = new double*[n];
-	for (int i = 0; i < n; ++i) {
-		res[i] = new double[m];
-	}
+double* linSolveDownParal(double* _A, double* _b, int n, int m) {
+	double* res = new double[n * m];
 	for (int i = 0; i < n; ++i){
 		for (int j = 0; j < m; ++j){
-			res[i][j] = _b[i][j];
-			double prod = 0.0;
-//#pragma omp parallel for private(prod)
-			//double prod = 0.0;
+			res[i * m + j] = _b[i * m + j];
 			for (int k = 0; k < i; k++) {
-				prod -= _A[i][k] * res[k][j];
+				res[i * m + j] -= _A[i * n + k] * res[k * m + j];
 			}
-			//res[i][j] = prod;
-			/*omp_lock_t lock;
-			omp_init_lock(&lock);
-			omp_set_lock(&lock);
-			res[i][j] = prod;
-			omp_unset_lock(&lock);
-			omp*/
 		}
 	}
 	return res;
 }
+
 
 //double** linSolveUp(double** _A, double** _b, int n, int m) {
 //	double e;
@@ -387,40 +342,36 @@ double* linSolveUp(double* _A, double* _b, int n, int m) {
 	return res;
 }
 
-//double** linSolveUpParal(double** _A, double** _b, int n, int m) {
-//	double** res = new double*[n];
-//	for (int i = 0; i < n; ++i) {
-//		res[i] = new double[m];
-//	}
-//	double** ident = new double*[m];
-//	for (int i = 0; i < m; ++i) {
-//		ident[i] = new double[m];
-//		for (int j = 0; j < m; ++j) {
-//			ident[i][j] = 0;
-//		}
-//		ident[i][i] = 1.0;
-//	}
-//	for (int i = 0; i < m - 1; ++i) {
-//		double e = 1.0 / _A[i][i];
-//		for (int j = 0; j < m; ++j) {
-//			_A[i][j] *= e;
-//			ident[i][j] *= e;
-//		}
-//		for (int k = i + 1; k < m; ++k) {
-//			double coeff = 1.0 / _A[k][k];
-//			coeff *= _A[i][k];
-//			for (int j = i + 1; j < m; ++j) {
-//
-//				ident[i][j] -= ident[k][j] * coeff;
-//				_A[i][j] -= _A[k][j] * coeff;
-//			}
-//		}
-//	}
-//	double eLast = 1.0 / _A[m - 1][m - 1];
-//	ident[m - 1][m - 1] *= eLast;
-//	res = matrixMult(_b, ident, n, m, m);
-//	return res;
-//}
+double* linSolveUpParal(double* _A, double* _b, int n, int m) {
+	double* res = new double[n * m];
+	double* ident = new double[m * m];
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < m; ++j) {
+			ident[i * m + j] = 0;
+		}
+		ident[i * m + i] = 1.0;
+	}
+	for (int i = 0; i < m - 1; ++i) {
+		double e = 1.0 / _A[i * m + i];
+		for (int j = 0; j < m; ++j) {
+			_A[i * m + j] *= e;
+			ident[i * m + j] *= e;
+		}
+		for (int k = i + 1; k < m; ++k) {
+			double coeff = 1.0 / _A[k * m + k];
+			coeff *= _A[i * m + k];
+			for (int j = i + 1; j < m; ++j) {
+
+				ident[i * m + j] -= ident[k * m + j] * coeff;
+				_A[i * m + j] -= _A[k * m + j] * coeff;
+			}
+		}
+	}
+	double eLast = 1.0 / _A[(m - 1) * m + (m - 1)];
+	ident[(m - 1) * m + (m - 1)] *= eLast;
+	res = matrixMult(_b, ident, n, m, m);
+	return res;
+}
 
 double* matrixMult(double* _source1, double* _source2, int m, int n, int s) {
 	double* result = new double[m * s];
