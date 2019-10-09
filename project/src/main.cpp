@@ -1,4 +1,3 @@
-#include "../../rowMatrix.h"
 #include <iostream>
 #include <omp.h>
 

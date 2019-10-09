@@ -37,31 +37,20 @@ double* LUDecompositionParal(double* _A, int m, int n) {
 		return nullptr;
 	}
 	int iLim = min(m - 1, n);
-//#pragma omp parallel //for num_threads(4)
-	//{
-//#pragma omp for //schedule(static, 4)
-		for (int i = 0; i < iLim; ++i)
-		{
-			//printf("Thread on %d is %d\n", i, omp_get_thread_num());
-			//cout << "Thread on " << i << " is " << omp_get_thread_num() << endl;
-//#pragma omp for
+	for (int i = 0; i < iLim; ++i) {
+#pragma omp parallel for
+		for (int k = i + 1; k < m; ++k) {
+			_A[k * n + i] /= _A[i * n + i];
+		}
+		if (i < n) {
 #pragma omp parallel for
 			for (int k = i + 1; k < m; ++k) {
-				//printf("Thread1 on [%d][%d] is %d\n", k, i, omp_get_thread_num());
-				_A[k * n + i] /= _A[i * n + i];
-			}
-			if (i < n) {
-#pragma omp parallel for
-				for (int k = i + 1; k < m; ++k) {
-					for (int l = i + 1; l < n; ++l) {
-						//printf("Thread2 on [%d][%d] is %d\n", k, l, omp_get_thread_num());
-						_A[k * n + l] -= _A[k * n + i] * _A[i * n + l];
-					}
+				for (int l = i + 1; l < n; ++l) {
+					_A[k * n + l] -= _A[k * n + i] * _A[i * n + l];
 				}
 			}
 		}
-		//cout << "Number of threads is " << omp_get_num_threads() << endl;
-	//}
+	}
 	return _A;
 }
 
