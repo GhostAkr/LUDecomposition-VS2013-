@@ -61,8 +61,10 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 	int lastsize = 0;
 	int length;
 	double* block = new double [b * b];
+	double t1 = 0.0, t2 = 0.0;
 	for (int i = 0; i < n; i += b) {
 		length = n - i - b;
+		//cout << "length = " << length << endl;
 		double* block1 = new double[b * length];
 		double* block2 = new double[length * b];
 		for (int k = 0; k < b; ++k) {
@@ -95,13 +97,21 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 				res[k * n + l] = block1[(k - i) * length + (l - i - b)];
 			}
 		}
-		double* mm = matrixMult(block2, block1, length, b, length);
+		/*double* mm = matrixMult(block2, block1, length, b, length);
 		for (int k = 0; k < length; ++k) {
 			for (int l = 0; l < length; ++l) {
 				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
 			}
+		}*/
+		for (int k = i + b; k < n; ++k) {
+			for (int l = i + b; l < n; ++l) {
+				double sum = 0.0;
+				for (int p = 0; p < b; ++p) {
+					sum += block2[(k - i - b) * b + p] * block1[p * length + (l - i - b)];
+				}
+				_A[k * n + l] -= sum;
+			}
 		}
-		
 		_i = i;
 		if (i == n - b) {
 			for (int k = 0; k < b; ++k) {
@@ -118,7 +128,7 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 		}
 		deletePointMatr(block1, b);
 		deletePointMatr(block2, length);
-		deletePointMatr(mm, length);
+		//deletePointMatr(mm, length);
 	}
 	deletePointMatr(block, b);
 	return res;
@@ -165,13 +175,21 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				res[k * n + l] = block1[(k - i) * length + (l - i - b)];
 			}
 		}
-		double* mm = matrixMult(block2, block1, length, b, length);
+		/*double* mm = matrixMult(block2, block1, length, b, length);
 		for (int k = 0; k < length; ++k) {
 			for (int l = 0; l < length; ++l) {
 				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
 			}
+		}*/
+		for (int k = i + b; k < n; ++k) {
+			for (int l = i + b; l < n; ++l) {
+				double sum = 0.0;
+				for (int p = 0; p < b; ++p) {
+					sum += block2[(k - i - b) * b + p] * block1[p * length + (l - i - b)];
+				}
+				_A[k * n + l] -= sum;
+			}
 		}
-
 		_i = i;
 		if (i == n - b) {
 			for (int k = 0; k < b; ++k) {
@@ -188,7 +206,7 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 		}
 		deletePointMatr(block1, b);
 		deletePointMatr(block2, length);
-		deletePointMatr(mm, length);
+		//deletePointMatr(mm, length);
 	}
 	deletePointMatr(block, b);
 	return res;
@@ -197,10 +215,10 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 
 // Other methods
 
-void matrixPrint(double** _source, int m, int n) {
+void matrixPrint(double* _source, int m, int n) {
 	for (int i = 0; i < m; ++i) {
 		for (int j = 0; j < n; ++j) {
-			cout << _source[i][j] << " ";
+			cout << _source[i * n + j] << " ";
 		}
 		cout << endl;
 	}
@@ -382,6 +400,7 @@ double* matrixMult(double* _source1, double* _source2, int m, int n, int s) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < s; j++) {
 				result[i * s + j] += _source1[i * n + k] * _source2[k * s + j];
+				//sum += _source1[i * n + k] * _source2[k * s + j];
 			}
 		}
 	}
@@ -488,3 +507,4 @@ double checkLU(double* _initial, double* _final, int m) {
 //	}
 //	return _A;
 //}
+
