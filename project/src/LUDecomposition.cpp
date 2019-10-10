@@ -63,6 +63,9 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 	double* block = new double [b * b];
 	double t1 = 0.0, t2 = 0.0;
 	for (int i = 0; i < n; i += b) {
+		if (n - i < b) {
+			b = n - i;
+		}
 		length = n - i - b;
 		//cout << "length = " << length << endl;
 		double* block1 = new double[b * length];
@@ -142,6 +145,9 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 	int length;
 	double* block = new double[b * b];
 	for (int i = 0; i < n; i += b) {
+		if (n - i < b) {
+			b = n - i;
+		}
 		length = n - i - b;
 		double* block1 = new double[b * length];
 		double* block2 = new double[length * b];
@@ -167,8 +173,8 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				res[k * n + l] = block[(k - i) * b + (l - i)];
 			}
 		}
-		block1 = linSolveDownParal(block, block1, b, length);  // Counting U
-		block2 = linSolveUpParal(block, block2, length, b);   // Counting L
+			block1 = linSolveDownParal(block, block1, b, length);  // Counting U
+			block2 = linSolveUpParal(block, block2, length, b);   // Counting L
 		for (int k = i; k < b + i; ++k) {
 			for (int l = i + b; l < n; ++l) {
 				res[l * n + k] = block2[(l - i - b) * b + (k - i)];
@@ -181,12 +187,18 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
 			}
 		}*/
+		omp_set_num_threads(4);
+#pragma omp parallel for
 		for (int k = i + b; k < n; ++k) {
 			for (int l = i + b; l < n; ++l) {
 				double sum = 0.0;
-				for (int p = 0; p < b; ++p) {
-					sum += block2[(k - i - b) * b + p] * block1[p * length + (l - i - b)];
-				}
+//#pragma omp parallel for reduction(+:sum)
+					for (int p = 0; p < b; ++p) {
+						//printf("p = %d; Num of thread is %d\n", p, omp_get_thread_num());
+						sum += block2[(k - i - b) * b + p] * block1[p * length + (l - i - b)];
+					}
+				
+				
 				_A[k * n + l] -= sum;
 			}
 		}
@@ -280,22 +292,15 @@ double* linSolveDown(double* _A, double* _b, int n, int m) {
 
 double* linSolveDownParal(double* _A, double* _b, int n, int m) {
 	double* res = new double[n * m];
+	omp_set_num_threads(4);
 	for (int i = 0; i < n; ++i){
+#pragma omp parallel for
 		for (int j = 0; j < m; ++j){
 			res[i * m + j] = _b[i * m + j];
 			double tmp = 0.0;
-#//pragma omp parallel 
-	//		{
-				//cout << "Num of threads = " << omp_get_num_threads() << endl;
-//#pragma omp for reduction(+:tmp)
 				for (int k = 0; k < i; k++) {
-					//cout << "Num of threads = " << omp_get_thread_num() << endl;
-					//tmp += _A[i * n + k] * res[k * m + j];
 					res[i * m + j] -= _A[i * n + k] * res[k * m + j];
 				}
-
-//			}
-			//res[i * m + j] -= tmp;
 		}
 	}
 	return res;
@@ -362,6 +367,8 @@ double* linSolveUp(double* _A, double* _b, int n, int m) {
 double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 	double* res = new double[n * m];
 	double* ident = new double[m * m];
+	omp_set_num_threads(4);
+#pragma omp parallel for
 	for (int i = 0; i < m; ++i) {
 		for (int j = 0; j < m; ++j) {
 			ident[i * m + j] = 0;
@@ -370,7 +377,7 @@ double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 	}
 	for (int i = 0; i < m - 1; ++i) {
 		double e = 1.0 / _A[i * m + i];
-//#pragma omp parallel for
+#pragma omp parallel for
 		for (int j = 0; j < m; ++j) {
 			_A[i * m + j] *= e;
 			ident[i * m + j] *= e;

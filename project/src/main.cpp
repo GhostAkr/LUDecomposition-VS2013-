@@ -12,7 +12,7 @@ int main() {
 	// Initial block
 	int m = 1024;  // Number of rows
 	int n = 1024;  // Number of cols
-	int b = 16;
+	int b = 20;
 	double* initialMatrix = createRandomRowMatrix(m, n);
 	double* A = getCopy(initialMatrix, m, n);
 	double* B = getCopy(initialMatrix, m, n);
@@ -24,7 +24,7 @@ int main() {
 	double inTime = omp_get_wtime();
 	double* newA1 = LUDecomposition(A, m, n);
 	double outTime = omp_get_wtime();
-	cout << "Difference with A = " << checkLU(initialMatrix, newA1, m) << endl;
+	//cout << "Difference with A = " << checkLU(initialMatrix, newA1, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
@@ -33,7 +33,7 @@ int main() {
 	inTime = omp_get_wtime();
 	double* newA2 = LUDecompositionParal(B, m, n);
 	outTime = omp_get_wtime();
-	cout << "Difference with A = " << checkLU(initialMatrix, newA2, m) << endl;
+	//cout << "Difference with A = " << checkLU(initialMatrix, newA2, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
@@ -42,7 +42,7 @@ int main() {
 	inTime = omp_get_wtime();
 	double* newA3 = LUBlockDecomposition(C, m, b);
 	outTime = omp_get_wtime();
-	cout << "Difference with A = " << checkLU(initialMatrix, newA3, m) << endl;
+	//cout << "Difference with A = " << checkLU(initialMatrix, newA3, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
@@ -51,7 +51,7 @@ int main() {
 	inTime = omp_get_wtime();
 	double* newA4 = LUBlockDecompositionParal(D, m, b);
 	outTime = omp_get_wtime();
-	cout << "Difference with A = " << checkLU(initialMatrix, newA4, m) << endl;
+	//cout << "Difference with A = " << checkLU(initialMatrix, newA4, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
 
