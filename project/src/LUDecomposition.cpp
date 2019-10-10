@@ -55,7 +55,6 @@ double* LUDecompositionParal(double* _A, int m, int n) {
 }
 
 double* LUBlockDecomposition(double* _A, int n, int b) {
-	//int b = 40;
 	double* res = new double[n * n];
 	int _i = 0;
 	int lastsize = 0;
@@ -67,7 +66,6 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 			b = n - i;
 		}
 		length = n - i - b;
-		//cout << "length = " << length << endl;
 		double* block1 = new double[b * length];
 		double* block2 = new double[length * b];
 		for (int k = 0; k < b; ++k) {
@@ -100,12 +98,6 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 				res[k * n + l] = block1[(k - i) * length + (l - i - b)];
 			}
 		}
-		/*double* mm = matrixMult(block2, block1, length, b, length);
-		for (int k = 0; k < length; ++k) {
-			for (int l = 0; l < length; ++l) {
-				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
-			}
-		}*/
 		for (int k = i + b; k < n; ++k) {
 			for (int l = i + b; l < n; ++l) {
 				double sum = 0.0;
@@ -129,16 +121,14 @@ double* LUBlockDecomposition(double* _A, int n, int b) {
 				}
 			}
 		}
-		deletePointMatr(block1, b);
-		deletePointMatr(block2, length);
-		//deletePointMatr(mm, length);
+		delete[] block1;
+		delete[] block2;
 	}
-	deletePointMatr(block, b);
+	delete[] block;
 	return res;
 }
 
 double* LUBlockDecompositionParal(double* _A, int n, int b) {
-	//int b = 40;
 	double* res = new double[n * n];
 	int _i = 0;
 	int lastsize = 0;
@@ -181,24 +171,14 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				res[k * n + l] = block1[(k - i) * length + (l - i - b)];
 			}
 		}
-		/*double* mm = matrixMult(block2, block1, length, b, length);
-		for (int k = 0; k < length; ++k) {
-			for (int l = 0; l < length; ++l) {
-				_A[(i + b + k) * n + (i + b + l)] -= mm[k * length + l];
-			}
-		}*/
 		omp_set_num_threads(4);
 #pragma omp parallel for
 		for (int k = i + b; k < n; ++k) {
 			for (int l = i + b; l < n; ++l) {
 				double sum = 0.0;
-//#pragma omp parallel for reduction(+:sum)
 					for (int p = 0; p < b; ++p) {
-						//printf("p = %d; Num of thread is %d\n", p, omp_get_thread_num());
 						sum += block2[(k - i - b) * b + p] * block1[p * length + (l - i - b)];
 					}
-				
-				
 				_A[k * n + l] -= sum;
 			}
 		}
@@ -216,16 +196,16 @@ double* LUBlockDecompositionParal(double* _A, int n, int b) {
 				}
 			}
 		}
-		deletePointMatr(block1, b);
-		deletePointMatr(block2, length);
-		//deletePointMatr(mm, length);
+		delete[] block1;
+		delete[] block2;
 	}
-	deletePointMatr(block, b);
+	delete[] block;
 	return res;
 }
 
 
 // Other methods
+
 
 void matrixPrint(double* _source, int m, int n) {
 	for (int i = 0; i < m; ++i) {
@@ -234,20 +214,6 @@ void matrixPrint(double* _source, int m, int n) {
 		}
 		cout << endl;
 	}
-}
-
-double** createRandomMatrix(int m, int n) {
-	double** result = new double* [m];
-	for (int i = 0; i < m; ++i) {
-		result[i] = new double[n];
-	}
-	//srand(time(NULL));
-	for (int i = 0; i < m; ++i) {
-		for (int j = 0; j < n; ++j) {
-			result[i][j] = rand() / 1000 + 5;
-		}
-	}
-	return result;
 }
 
 double* createRandomRowMatrix(int m, int n) {
@@ -306,33 +272,6 @@ double* linSolveDownParal(double* _A, double* _b, int n, int m) {
 	return res;
 }
 
-
-//double** linSolveUp(double** _A, double** _b, int n, int m) {
-//	double e;
-//	double** res = new double*[n];
-//	for (int i = 0; i < n; ++i) {
-//		res[i] = new double[m];
-//	}
-//	for (int i = 0; i < m; ++i){
-//		e = 1 / _A[i][i];
-//		for (int j = i + 1; j < m; ++j) {
-//			_A[i][j] *= e;
-//			for (int k = 0; k < i; ++k) {
-//				_A[k][j] -= _A[k][i] * _A[i][j];
-//			}
-//		}
-//		for (int k = 0; k < i; ++k) {
-//			_A[k][i] *= -e;
-//		}
-//		_A[i][i] = e;
-//	}
-//	//cout << "Inv" << endl;
-//	//matrixPrint(_A, m, m);
-//	res = matrixMult(_b, _A, n, m, m);
-//	//_b = res;
-//	return res;
-//}
-
 double* linSolveUp(double* _A, double* _b, int n, int m) {
 	double* res = new double[n * m];
 	double* ident = new double[m * m];
@@ -361,6 +300,7 @@ double* linSolveUp(double* _A, double* _b, int n, int m) {
 	double eLast = 1.0 / _A[(m - 1) * m + (m - 1)];
 	ident[(m - 1) * m + (m - 1)] *= eLast;
 	res = matrixMult(_b, ident, n, m, m);
+	delete[] ident;
 	return res;
 }
 
@@ -385,7 +325,6 @@ double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 		for (int k = i + 1; k < m; ++k) {
 			double coeff = 1.0 / _A[k * m + k];
 			coeff *= _A[i * m + k];
-//#pragma omp parallel for
 			for (int j = i + 1; j < m; ++j) {
 				ident[i * m + j] -= ident[k * m + j] * coeff;
 				_A[i * m + j] -= _A[k * m + j] * coeff;
@@ -395,6 +334,7 @@ double* linSolveUpParal(double* _A, double* _b, int n, int m) {
 	double eLast = 1.0 / _A[(m - 1) * m + (m - 1)];
 	ident[(m - 1) * m + (m - 1)] *= eLast;
 	res = matrixMult(_b, ident, n, m, m);
+	delete[] ident;
 	return res;
 }
 
@@ -407,7 +347,6 @@ double* matrixMult(double* _source1, double* _source2, int m, int n, int s) {
 		for (int i = 0; i < m; i++) {
 			for (int j = 0; j < s; j++) {
 				result[i * s + j] += _source1[i * n + k] * _source2[k * s + j];
-				//sum += _source1[i * n + k] * _source2[k * s + j];
 			}
 		}
 	}
@@ -433,9 +372,9 @@ void partPrint(double** _source) {
 	}
 }
 
-void deletePointMatr(double* _source, int m) {
-	delete[] _source;
-}
+//void deletePointMatr(double* _source, int m) {
+//	delete[] _source;
+//}
 
 double norm(double* _source, int m, int n) {
 	double max = 0.0;
@@ -493,25 +432,10 @@ double checkLU(double* _initial, double* _final, int m) {
 	double* U = getU(_final, m);
 	double* LU = matrixMult(L, U, m, m, m);
 	double* diff = matrixDiff(_initial, LU, m, m);
-	deletePointMatr(L, m);
-	deletePointMatr(U, m);
-	deletePointMatr(LU, m);
+	delete[] L;
+	delete[] U;
+	delete[] LU;
 	double result = norm(diff, m, m);
-	deletePointMatr(diff, m);
+	delete[] diff;
 	return result;
 }
-
-//double* LUDecomposition(double* _A, int m, int n)
-//{
-//	for (int i = 0; i < n; i++) {
-//
-//		for (int j = i + 1; j < n; j++)
-//		{
-//			_A[j * m + i] /= _A[i * m + i];
-//
-//			for (int k = i + 1; k < n; k++) _A[j * m + k] -= _A[i * m + k] * _A[j * m + i];
-//		}
-//	}
-//	return _A;
-//}
-

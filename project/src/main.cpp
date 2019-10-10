@@ -18,12 +18,13 @@ int main() {
 	double* B = getCopy(initialMatrix, m, n);
 	double* C = getCopy(initialMatrix, m, n);
 	double* D = getCopy(initialMatrix, m, n);
+	double inTime = 0, outTime = 0;
 
 
 	cout << "Usual LU-Decomposition" << endl;
-	double inTime = omp_get_wtime();
+	inTime = omp_get_wtime();
 	double* newA1 = LUDecomposition(A, m, n);
-	double outTime = omp_get_wtime();
+	outTime = omp_get_wtime();
 	//cout << "Difference with A = " << checkLU(initialMatrix, newA1, m) << endl;
 	cout << "Time spent: " << outTime - inTime << endl;
 	cout << endl << endl;
@@ -56,11 +57,11 @@ int main() {
 	cout << endl << endl;
 
 
-	deletePointMatr(A, m);
-	deletePointMatr(B, m);
-	deletePointMatr(C, m);
-	deletePointMatr(D, m);
-	deletePointMatr(newA3, m);
-	deletePointMatr(newA4, m);
+	delete[] A;  // A also points to newA1
+	delete[] B;  // B also points to newA2
+	delete[] C;
+	delete[] D;
+	delete[] newA3;
+	delete[] newA4;
 	system("pause");
 }

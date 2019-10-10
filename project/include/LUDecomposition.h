@@ -25,7 +25,7 @@ double* getCopy(double* _source, int m, int n);
 double checkLU(double* _initial, double* _final, int m);
 
 
-void deletePointMatr(double* _source, int m);
+//void deletePointMatr(double* _source, int m);
 
 void partPrint(double** _source);
 
